@@ -277,6 +277,4 @@ const PLAYERS = [
     },
 ];
 
-PLAYERS.forEach((player) => (player.id = randomUUID()));
-
 export default PLAYERS;

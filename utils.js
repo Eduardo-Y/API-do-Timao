@@ -9,7 +9,7 @@ export function formatString(str) {
 }
 
 export function validateRequest(schema, value) {
-    const responseError = schema.validate(value)?.error;
+    const responseError = schema.validate(value, { abortEarly: false })?.error;
     if (responseError) {
         return responseError.message;
     }

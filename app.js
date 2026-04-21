@@ -45,7 +45,11 @@ global.schema = Joi.object({
     stats: Joi.object({
         goals: Joi.number().min(0).max(2000),
         penalty_defenses: Joi.number().min(0).max(200),
-    }).min(1),
+    })
+        .min(1)
+        .alter({
+            create: (f) => f.required(),
+        }),
     titles: Joi.array()
         .items(Joi.string().min(10).max(50).required())
         .alter({
