@@ -1,7 +1,7 @@
 import express, { json } from "express";
 import ALL_PLAYERS from "./data.js";
 import Joi from "joi";
-import { formatString, validateRequest, verifyId } from "./utils.js";
+import { formatString, isLetters, validateRequest, verifyId } from "./utils.js";
 import { randomUUID } from "node:crypto";
 
 let all_players = ALL_PLAYERS;
@@ -67,6 +67,12 @@ app.get("/", (req, res) => {
 app.get("/player-by-name/:name", (req, res) => {
     let { name } = req.params;
     name = formatString(name);
+
+    const isNameInvalid = isLetters(name);
+    if (isNameInvalid) {
+        res.status(400).send(isNameInvalid);
+    }
+
     const selected_player = all_players.filter((player) =>
         formatString(player.name).includes(name),
     );
@@ -96,18 +102,15 @@ app.get("/player-by-id/:id", (req, res) => {
 });
 
 app.post("/add-new-player", (req, res) => {
-    const new_player = req.body;
+    let newPlayer = { id: randomUUID(), ...req.body };
     const createSchema = global.schema.tailor("create");
 
-    if (!new_player) {
+    if (!req.body) {
         res.status(400).send("Erro ao ler dados enviados a API !!!");
         return;
     }
 
-    if (Object.keys(new_player) > 5) {
-    }
-
-    const isRequestInvalid = validateRequest(createSchema, new_player);
+    const isRequestInvalid = validateRequest(createSchema, req.body);
     if (isRequestInvalid) {
         res.status(400).send(isRequestInvalid);
         return;
@@ -115,16 +118,15 @@ app.post("/add-new-player", (req, res) => {
 
     for (let player of all_players) {
         if (
-            player.name === new_player.name &&
-            player.position === new_player.position
+            player.name === newPlayer.name &&
+            player.position === newPlayer.position
         ) {
             return res.status(200).send("Esse jogador já foi cadastrado !!");
         }
     }
 
-    new_player.id = randomUUID();
-    all_players.push(new_player);
-    res.status(200).send(new_player);
+    all_players.push(newPlayer);
+    res.status(200).send(newPlayer);
 });
 
 app.put("/update-player/:id", (req, res) => {
@@ -179,4 +181,6 @@ app.delete("/delete-player/:id", (req, res) => {
 });
 
 const port = 3000;
-app.listen(port, () => console.log("API rodando ..."));
+app.listen(port, () => {
+    console.log("API rodando ...");
+});

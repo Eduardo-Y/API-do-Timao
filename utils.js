@@ -1,8 +1,10 @@
 import Joi from "joi";
 
 export function formatString(str) {
-    let formated_str = str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
+    let formated_str = str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replaceAll(" ", "-");
     return formated_str.toLowerCase();
 }
 
@@ -14,9 +16,9 @@ export function validateRequest(schema, value) {
     return false;
 }
 
-export function isLetter(str) {
-    if (id.length !== 36 || !/^[a-zA-Z-]+$/i.test(id)) {
-        return "O id do jogador deve conter 36 caracteres e eles devem ser alphanuméricos!!!";
+export function isLetters(str) {
+    if (!/^[a-zA-Z-]+$/i.test(str)) {
+        return "O nome dos jogadores deve ser pesquisado apenas com palavras separaradas por '-' (Ex: Edilson-Capetinha)!!!";
     }
     return false;
 }
