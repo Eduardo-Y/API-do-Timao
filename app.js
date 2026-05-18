@@ -1,5 +1,5 @@
 import express, { json } from "express";
-import player from "./routes/player.js";
+import player from "./routes/playersRouter.js";
 
 const app = express();
 
