@@ -23,12 +23,23 @@ class PlayersRepository extends BaseRepository {
     }
 
     async create(name, position) {
-        await new BaseRepository().create(
-            "players",
-            "name, position",
+        await new BaseRepository().create("players", "name, position", [
             name,
             position,
+        ]);
+    }
+
+    async update(id, columns, newValues) {
+        return await new BaseRepository().update(
+            "players",
+            columns,
+            id,
+            newValues,
         );
+    }
+
+    async delete(id) {
+        return await new BaseRepository().delete("players", id);
     }
 }
 

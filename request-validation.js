@@ -16,17 +16,6 @@ const updateSchema = Joi.object({
 
     position: Joi.string().valid(...positions),
 
-    started: Joi.number().min(1910).max(2100),
-
-    left: Joi.number().min(1910).max(2100),
-
-    stats: Joi.object({
-        goals: Joi.number().min(0).max(2000),
-        penalty_defenses: Joi.number().min(0).max(200),
-    }).min(1),
-
-    titles: Joi.array().items(Joi.string().min(10).max(50).required()),
-
     id: Joi.string().forbidden(),
 }).max(6);
 

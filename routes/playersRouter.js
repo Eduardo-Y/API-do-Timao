@@ -80,54 +80,59 @@ player.post("/create", async (req, res) => {
     );
 });
 
-// player.put("/update/:id", (req, res) => {
-//     const requestId = req.params.id;
-//     const isIdInvalid = verifyId(requestId);
-//     if (isIdInvalid) {
-//         res.status(400).send(isIdInvalid);
-//         return;
-//     }
+player.put("/update/:id", async (req, res) => {
+    const requestId = req.params.id;
+    const isIdInvalid = verifyId(requestId);
+    if (isIdInvalid) {
+        res.status(400).send(isIdInvalid);
+        return;
+    }
 
-//     const selected_player = all_players.find((p) => p.id === requestId);
-//     const requestData = req.body;
+    const selected_player = await new PlayersRepository().getById(requestId);
 
-//     if (!selected_player) {
-//         res.status(404).send("Jogador não encontrado!!!");
-//         return;
-//     }
+    if (!selected_player) {
+        res.status(404).send("Jogador não encontrado!!!");
+        return;
+    }
 
-//     const requestIsInvalid = validateUpdateSchema(requestData);
-//     if (requestIsInvalid) {
-//         res.status(400).send(requestIsInvalid);
-//         return;
-//     }
+    let requestData = req.body;
+    const requestIsInvalid = validateUpdateSchema(requestData);
 
-//     for (const key of Object.keys(requestData)) {
-//         if (Object.keys(selected_player).includes(key)) {
-//             selected_player[key] = requestData[key];
-//         }
-//     }
+    if (requestIsInvalid) {
+        res.status(400).send(requestIsInvalid);
+        return;
+    }
 
-//     res.status(200).send(selected_player);
-// });
+    const requestKeys = Object.keys(requestData);
 
-// player.delete("/delete/:id", (req, res) => {
-//     const requestId = req.params.id;
-//     const isIdInvalid = verifyId(requestId);
-//     if (isIdInvalid) {
-//         res.status(400).send(isIdInvalid);
-//         return;
-//     }
+    requestData = Object.values(req.body);
+    const playerUpdated = await new PlayersRepository().update(
+        requestId,
+        requestKeys,
+        requestData,
+    );
 
-//     const selected_player = all_players.find((p) => p.id === requestId);
+    res.status(200).send(playerUpdated);
+});
 
-//     if (!selected_player) {
-//         res.status(404).send("Jogador não encontrado!!!");
-//         return;
-//     }
+player.delete("/delete/:id", async (req, res) => {
+    const requestId = req.params.id;
+    const isIdInvalid = verifyId(requestId);
+    if (isIdInvalid) {
+        res.status(400).send(isIdInvalid);
+        return;
+    }
 
-//     all_players = all_players.filter((p) => p.id !== requestId);
-//     res.status(200).send(selected_player);
-// });
+    const selected_player = await new PlayersRepository().getById(requestId);
+
+    if (!selected_player) {
+        res.status(404).send("Jogador não encontrado!!!");
+        return;
+    }
+
+    const deletedPlayer = await new PlayersRepository().delete(requestId);
+
+    res.status(200).send(selected_player);
+});
 
 export default player;

@@ -17,11 +17,34 @@ class BaseRepository {
         return result;
     }
 
-    async create(table, columns, name, position) {
-        await pool.query(`INSERT INTO ${table} (${columns}) values ($1, $2)`, [
-            name,
-            position,
+    async create(table, columns, values) {
+        let num_values = "$1";
+        for (let i = 2; i <= values.length; i++) num_values += `, $${i}`;
+        await pool.query(
+            `INSERT INTO ${table} (${columns}) values (${num_values})`,
+            values,
+        );
+    }
+
+    async update(table, columns, id, newValues) {
+        let changes = `${columns[0]} = $2`;
+        for (let i = 2; i <= newValues.length; i++) {
+            changes += `, ${columns[i - 1]} = $${i + 1}`;
+        }
+        console.log(`UPDATE ${table} SET ${changes} WHERE id = $1`, newValues);
+        await pool.query(`UPDATE ${table} SET ${changes} WHERE id = $1`, [
+            id,
+            ...newValues,
         ]);
+
+        return this.getById(table, columns, id);
+    }
+
+    async delete(table, id) {
+        const registerDeleted = await pool.query(
+            `DELETE FROM ${table} WHERE id = $1`,
+            [id],
+        );
     }
 }
 
