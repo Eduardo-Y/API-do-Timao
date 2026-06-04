@@ -7,13 +7,28 @@ class PlayersRepository extends BaseRepository {
         return results;
     }
 
+    async getById(id) {
+        const result = await new BaseRepository().getById("players", "*", id);
+        return result;
+    }
+
     async getByName(name) {
         const results = (
-            await pool.query(`SELECT * FROM players WHERE "Name" LIKE $1`, [
-                `%${name}%`,
-            ])
+            await pool.query(
+                `SELECT * FROM players WHERE LOWER(name) LIKE $1`,
+                [`%${name}%`],
+            )
         ).rows;
         return results;
+    }
+
+    async create(name, position) {
+        await new BaseRepository().create(
+            "players",
+            "name, position",
+            name,
+            position,
+        );
     }
 }
 

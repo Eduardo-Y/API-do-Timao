@@ -37,21 +37,6 @@ const createSchema = Joi.object({
         .valid(...positions)
         .required(),
 
-    started: Joi.number().min(1910).max(2100).required(),
-
-    left: Joi.number().min(1910).max(2100).required(),
-
-    stats: Joi.object({
-        goals: Joi.number().min(0).max(2000),
-        penalty_defenses: Joi.number().min(0).max(200),
-    })
-        .min(1)
-        .required(),
-
-    titles: Joi.array()
-        .items(Joi.string().min(10).max(50).required())
-        .required(),
-
     id: Joi.string().forbidden(),
 }).max(6);
 

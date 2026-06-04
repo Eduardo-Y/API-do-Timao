@@ -18,64 +18,67 @@ player.get("/", async (req, res) => {
 
 player.get("/get-by-name/:name", async (req, res) => {
     let { name } = req.params;
+
+    const isNameInvalid = isLetters(name);
+    if (isNameInvalid) {
+        res.status(400).send(isNameInvalid);
+    }
+
     name = formatString(name);
 
-    // const isNameInvalid = isLetters(name);
-    // if (isNameInvalid) {
-    //     res.status(400).send(isNameInvalid);
-    // }
-
     const selected_player = await new PlayersRepository().getByName(name);
-    console.log(name);
     res.status(200).send(selected_player);
 });
 
-// player.get("/get-by-id/:id", (req, res) => {
-//     const requestId = req.params.id;
+player.get("/get-by-id/:id", async (req, res) => {
+    const requestId = req.params.id;
 
-//     const isIdInvalid = verifyId(requestId);
-//     if (isIdInvalid) {
-//         res.status(400).send(isIdInvalid);
-//         return;
-//     }
+    const isIdInvalid = verifyId(requestId);
+    if (isIdInvalid) {
+        res.status(400).send(isIdInvalid);
+        return;
+    }
 
-//     const selected_player = all_players.find(
-//         (player) => player.id === requestId,
-//     );
+    const selected_player = await new PlayersRepository().getById(requestId);
 
-//     if (!selected_player) {
-//         res.status(404).send("Jogador não encontrado!!!");
-//         return;
-//     }
-//     res.status(200).send(selected_player);
-// });
+    if (!selected_player) {
+        res.status(404).send("Jogador não encontrado!!!");
+        return;
+    }
+    res.status(200).send(selected_player);
+});
 
-// player.post("/create", (req, res) => {
-//     let newPlayer = { id: randomUUID(), ...req.body };
+player.post("/create", async (req, res) => {
+    const requestPlayer = req.body;
+    let { name, position } = requestPlayer;
 
-//     if (!req.body) {
-//         res.status(400).send("Erro ao ler dados enviados a API !!!");
-//         return;
-//     }
+    if (!req.body) {
+        res.status(400).send("Erro ao ler dados enviados a API !!!");
+        return;
+    }
 
-//     const requestIsInvalid = validateCreateSchema(req.body);
-//     if (requestIsInvalid) {
-//         res.status(400).send(requestIsInvalid);
-//         return;
-//     }
+    const requestIsInvalid = validateCreateSchema(req.body);
+    if (requestIsInvalid) {
+        res.status(400).send(requestIsInvalid);
+        return;
+    }
 
-//     for (let player of all_players) {
-//         if (
-//             player.name === newPlayer.name &&
-//             player.position === newPlayer.position
-//         ) {
-//             return res.status(200).send("Esse jogador já foi cadastrado !!");
-//         }
-//     }
+    const allPlayers = await new PlayersRepository().getAll();
+    for (let player of allPlayers) {
+        if (
+            player.name === requestPlayer.name &&
+            player.position === requestPlayer.position
+        ) {
+            return res.status(200).send("Esse jogador já foi cadastrado !!");
+        }
+    }
 
-//     all_players.push(newPlayer);
-//     res.status(200).send(newPlayer);
-// });
+    const newPlayer = await new PlayersRepository().create(name, position);
+
+    res.status(200).send(
+        "Jogador criado com sucesso!  " + JSON.stringify(requestPlayer),
+    );
+});
 
 // player.put("/update/:id", (req, res) => {
 //     const requestId = req.params.id;
